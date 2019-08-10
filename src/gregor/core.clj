@@ -311,14 +311,16 @@
   value.deserializer.
   "
   ^KafkaConsumer
+  ([servers] (consumer servers nil [] {}))
   ([servers group-id] (consumer servers group-id [] {}))
   ([servers group-id topics] (consumer servers group-id topics {}))
   ([servers group-id topics config]
    (let [servers (if (sequential? servers) (str/join "," servers) servers)
+         group (if (nil? group-id) {"enable.auto.commit" "false"} {"group.id" group-id})
          c (-> {"bootstrap.servers" servers
-                "group.id" group-id
                 "key.deserializer" str-deserializer
                 "value.deserializer" str-deserializer}
+               (merge group)
                (merge config)
                (as-properties)
                (KafkaConsumer.))]
